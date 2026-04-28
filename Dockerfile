@@ -3,16 +3,12 @@
 FROM maven:3.9.0-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy POM first to leverage layer caching for dependencies
+# Copy POM and source (assumes no mvnw/.mvn in the repo)
 COPY pom.xml ./
-# If your repo includes the maven wrapper and .mvn, copy them as well
-COPY mvnw ./
-COPY .mvn .mvn
-
-# Copy source and package
 COPY src ./src
 
-RUN mvn -DskipTests package -DskipUTs -DskipITs
+# Build the project inside the Maven image
+RUN mvn -DskipTests package
 
 ### Stage 2 - runtime
 FROM eclipse-temurin:17-jre
